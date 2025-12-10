@@ -26,3 +26,14 @@ yarn-error.log*
 /tasks
 generate-tasks.md
 create-prd.md
+
+# database
+/database
+
+# logs
+/logs
+logs.md 
+
+PROGRESS.md
+QUICK_START.md
+FIX-ADMIN-ROLE.md
