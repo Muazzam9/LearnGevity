@@ -1,25 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 const Contact = () => {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="text-2xl font-bold text-primary-navy">LearnGevity</Link>
-            <div className="hidden md:flex space-x-8">
-              <Link to="/" className="text-gray-700 hover:text-primary-purple">Home</Link>
-              <Link to="/about" className="text-gray-700 hover:text-primary-purple">About</Link>
-              <Link to="/pricing" className="text-gray-700 hover:text-primary-purple">Pricing</Link>
-              <Link to="/tutors" className="text-gray-700 hover:text-primary-purple">Tutors</Link>
-              <Link to="/apply" className="text-gray-700 hover:text-primary-purple">Apply</Link>
-              <Link to="/contact" className="text-primary-purple font-semibold">Contact</Link>
-              <Link to="/login" className="bg-primary-purple text-white px-4 py-2 rounded-lg">Login</Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <Navbar />
 
       <div className="max-w-5xl mx-auto px-4 py-16">
         <div className="text-center mb-12">
@@ -120,6 +107,8 @@ const Contact = () => {
           </div>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 };

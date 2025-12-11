@@ -10,7 +10,6 @@ import Tutors from './pages/Tutors';
 import Apply from './pages/Apply';
 import Contact from './pages/Contact';
 import Login from './pages/Login';
-import DebugAuth from './pages/DebugAuth';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -33,7 +32,6 @@ function App() {
         <Route path="/apply" element={<Apply />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/debug-auth" element={<DebugAuth />} />
 
         {/* Admin Routes */}
         <Route 

@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+import Loading from '../components/Loading';
 
 const Tutors = () => {
   const [tutors, setTutors] = useState([]);
@@ -29,23 +32,8 @@ const Tutors = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="text-2xl font-bold text-primary-navy">LearnGevity</Link>
-            <div className="hidden md:flex space-x-8">
-              <Link to="/" className="text-gray-700 hover:text-primary-purple">Home</Link>
-              <Link to="/about" className="text-gray-700 hover:text-primary-purple">About</Link>
-              <Link to="/pricing" className="text-gray-700 hover:text-primary-purple">Pricing</Link>
-              <Link to="/tutors" className="text-primary-purple font-semibold">Tutors</Link>
-              <Link to="/apply" className="text-gray-700 hover:text-primary-purple">Apply</Link>
-              <Link to="/contact" className="text-gray-700 hover:text-primary-purple">Contact</Link>
-              <Link to="/login" className="bg-primary-purple text-white px-4 py-2 rounded-lg">Login</Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 py-16">
         <div className="text-center mb-12">
@@ -53,12 +41,7 @@ const Tutors = () => {
           <p className="text-xl text-gray-600">Meet the passionate educators ready to help you succeed</p>
         </div>
 
-        {loading && (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-purple mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading tutors...</p>
-          </div>
-        )}
+        {loading && <Loading text="Loading tutors..." />}
 
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded max-w-2xl mx-auto">
@@ -126,6 +109,8 @@ const Tutors = () => {
           </Link>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 };

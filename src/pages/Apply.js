@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import emailjs from '@emailjs/browser';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+import Alert from '../components/Alert';
 
 const Apply = () => {
   const [formData, setFormData] = useState({
@@ -63,23 +66,8 @@ const Apply = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="text-2xl font-bold text-primary-navy">LearnGevity</Link>
-            <div className="hidden md:flex space-x-8">
-              <Link to="/" className="text-gray-700 hover:text-primary-purple">Home</Link>
-              <Link to="/about" className="text-gray-700 hover:text-primary-purple">About</Link>
-              <Link to="/pricing" className="text-gray-700 hover:text-primary-purple">Pricing</Link>
-              <Link to="/tutors" className="text-gray-700 hover:text-primary-purple">Tutors</Link>
-              <Link to="/apply" className="text-primary-purple font-semibold">Apply</Link>
-              <Link to="/contact" className="text-gray-700 hover:text-primary-purple">Contact</Link>
-              <Link to="/login" className="bg-primary-purple text-white px-4 py-2 rounded-lg">Login</Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <Navbar />
 
       <div className="max-w-3xl mx-auto px-4 py-16">
         <div className="text-center mb-8">
@@ -88,16 +76,24 @@ const Apply = () => {
         </div>
 
         {success && (
-          <div className="bg-green-100 border border-green-400 text-green-700 px-6 py-4 rounded-lg mb-6">
-            <strong>Application Submitted Successfully!</strong>
-            <p className="mt-1">Thank you for your interest. We'll review your application and get back to you soon.</p>
-          </div>
+          <Alert 
+            type="success" 
+            message={
+              <>
+                <strong>Application Submitted Successfully!</strong>
+                <p className="mt-1">Thank you for your interest. We'll review your application and get back to you soon.</p>
+              </>
+            }
+            onClose={() => setSuccess(false)}
+          />
         )}
 
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-lg mb-6">
-            {error}
-          </div>
+          <Alert 
+            type="error" 
+            message={error}
+            onClose={() => setError('')}
+          />
         )}
 
         <div className="bg-white rounded-lg shadow-md p-8">
@@ -212,6 +208,8 @@ const Apply = () => {
           <p>Have questions? <Link to="/contact" className="text-primary-purple hover:underline">Contact us</Link></p>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 };
