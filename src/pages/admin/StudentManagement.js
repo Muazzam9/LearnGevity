@@ -6,6 +6,7 @@ import StudentTable from '../../components/admin/StudentTable';
 import StudentForm from '../../components/admin/StudentForm';
 import Modal from '../../components/Modal';
 import Alert from '../../components/Alert';
+import { FaPlus, FaChalkboardTeacher, FaUserGraduate, FaCalendarAlt, FaHome } from 'react-icons/fa';
 
 const StudentManagement = () => {
   const [students, setStudents] = useState([]);
@@ -27,7 +28,7 @@ const StudentManagement = () => {
       const { data, error } = await supabase
         .from('students')
         .select('*')
-        .order('name');
+        .order('first_name');
 
       if (error) throw error;
       setStudents(data || []);
@@ -94,26 +95,46 @@ const StudentManagement = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Navigation */}
-      <nav className="bg-white shadow-md">
+      <nav className="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Link to="/admin/dashboard" className="text-2xl font-bold text-primary-navy">
-                LearnGevity Admin
+            <div className="flex items-center space-x-4 sm:space-x-8 lg:space-x-12 overflow-x-auto">
+              <Link to="/admin/dashboard" className="text-lg sm:text-xl font-bold bg-gradient-to-r from-primary-purple to-primary-navy bg-clip-text text-transparent whitespace-nowrap flex items-center gap-2">
+                <FaHome className="text-primary-navy text-base sm:text-lg" />
+                <span className="hidden sm:inline">LearnGevity Admin</span>
               </Link>
-              <div className="ml-10 flex space-x-4">
-                <Link to="/admin/tutors" className="text-gray-700 hover:text-primary-purple">Tutors</Link>
-                <Link to="/admin/students" className="text-primary-purple font-semibold">Students</Link>
-                <Link to="/admin/sessions" className="text-gray-700 hover:text-primary-purple">Sessions</Link>
+              <div className="flex space-x-2 sm:space-x-3 lg:space-x-4">
+                <Link to="/admin/tutors" className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 lg:px-5 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors text-xs sm:text-sm whitespace-nowrap">
+                  <FaChalkboardTeacher />
+                  <span>Tutors</span>
+                </Link>
+                <Link to="/admin/students" className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 lg:px-5 py-2 rounded-lg bg-gradient-to-r from-primary-orange to-primary-orange/80 text-white font-semibold text-xs sm:text-sm whitespace-nowrap">
+                  <FaUserGraduate />
+                  <span>Students</span>
+                </Link>
+                <Link to="/admin/sessions" className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 lg:px-5 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors text-xs sm:text-sm whitespace-nowrap">
+                  <FaCalendarAlt />
+                  <span>Sessions</span>
+                </Link>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-700 text-sm">{user?.email}</span>
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <Link
+                to="/"
+                className="hidden sm:flex items-center gap-1.5 bg-primary-purple/10 text-primary-purple px-3 py-2 rounded-lg hover:bg-primary-purple/20 transition-colors text-xs font-semibold whitespace-nowrap border border-primary-purple/20"
+                title="View Public Website"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <span className="hidden md:inline">Website</span>
+              </Link>
+              <span className="text-gray-700 text-xs truncate max-w-[100px] sm:max-w-none hidden sm:inline">{user?.email}</span>
               <button
                 onClick={handleSignOut}
-                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 text-sm"
+                className="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 text-xs sm:text-sm transition-colors"
               >
                 Sign Out
               </button>
@@ -123,37 +144,47 @@ const StudentManagement = () => {
       </nav>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-primary-navy">Student Management</h1>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-8">
+          <div>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-primary-navy mb-1">
+              Student Management
+            </h1>
+            <p className="text-gray-600 text-sm sm:text-base">
+              Manage student profiles and information
+            </p>
+          </div>
           <button
             onClick={handleAddStudent}
-            className="bg-primary-purple text-white px-6 py-3 rounded-lg font-semibold hover:bg-opacity-90 transition flex items-center gap-2"
+            className="bg-gradient-to-r from-primary-orange to-primary-orange/80 text-white px-5 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 whitespace-nowrap"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Add New Student
+            <FaPlus className="text-sm" />
+            <span>Add New Student</span>
           </button>
         </div>
 
         {/* Alert */}
         {alert && (
-          <Alert
-            type={alert.type}
-            message={alert.message}
-            onClose={() => setAlert(null)}
-            autoClose={true}
-          />
+          <div className="mb-6">
+            <Alert
+              type={alert.type}
+              message={alert.message}
+              onClose={() => setAlert(null)}
+              autoClose={true}
+            />
+          </div>
         )}
 
         {/* Student Table */}
-        <StudentTable
-          students={students}
-          loading={loading}
-          onEdit={handleEditStudent}
-          onDelete={handleDeleteStudent}
-        />
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+          <StudentTable
+            students={students}
+            loading={loading}
+            onEdit={handleEditStudent}
+            onDelete={handleDeleteStudent}
+          />
+        </div>
       </div>
 
       {/* Add/Edit Student Modal */}
@@ -183,20 +214,22 @@ const StudentManagement = () => {
         title="Delete Student"
         size="sm"
       >
-        <div className="space-y-4">
-          <p className="text-gray-700">
-            Are you sure you want to delete {deleteConfirm?.name}? This will also delete all associated session records. This action cannot be undone.
-          </p>
-          <div className="flex gap-4">
+        <div className="space-y-5">
+          <div className="bg-red-50 border border-red-200 p-4 rounded-lg">
+            <p className="text-gray-700 leading-relaxed">
+              Are you sure you want to delete {deleteConfirm?.first_name} {deleteConfirm?.last_name}? This will also delete all associated session records. This action cannot be undone.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={confirmDelete}
-              className="flex-1 bg-red-600 text-white py-2 rounded-lg font-semibold hover:bg-red-700"
+              className="flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white py-3 rounded-xl font-bold hover:shadow-lg transition-all duration-300"
             >
               Delete
             </button>
             <button
               onClick={() => setDeleteConfirm(null)}
-              className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg font-semibold hover:bg-gray-300"
+              className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-300 transition-colors"
             >
               Cancel
             </button>

@@ -1,27 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabaseClient';
-import { checkForConflicts, formatConflictMessage } from '../../utils/conflictDetection';
-import { formatDate, formatTime, getTodayDate, calculateEndTime } from '../../utils/dateHelpers';
+import React, { useState, useEffect } from "react";
+import { supabase } from "../../lib/supabaseClient";
+import {
+  checkForConflicts,
+  formatConflictMessage,
+} from "../../utils/conflictDetection";
+import {
+  formatDate,
+  formatTime,
+  getTodayDate,
+  calculateEndTime,
+} from "../../utils/dateHelpers";
 
 const SessionForm = ({ session, onSuccess, onCancel }) => {
   const [formData, setFormData] = useState({
-    tutor_id: '',
-    student_id: '',
-    subject: '',
+    tutor_id: "",
+    student_id: "",
+    subject: "",
     date: getTodayDate(),
-    start_time: '',
+    start_time: "",
     duration: 60,
-    session_type: 'private',
-    delivery_mode: 'online',
-    location: '',
-    meeting_link: '',
+    session_type: "private",
+    delivery_mode: "online",
+    location: "",
+    meeting_link: "",
   });
 
   const [tutors, setTutors] = useState([]);
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [fetchingData, setFetchingData] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [conflictWarning, setConflictWarning] = useState(null);
   const [checkingConflicts, setCheckingConflicts] = useState(false);
 
@@ -32,16 +40,16 @@ const SessionForm = ({ session, onSuccess, onCancel }) => {
   useEffect(() => {
     if (session) {
       setFormData({
-        tutor_id: session.tutor_id || '',
-        student_id: session.student_id || '',
-        subject: session.subject || '',
+        tutor_id: session.tutor_id || "",
+        student_id: session.student_id || "",
+        subject: session.subject || "",
         date: formatDate(session.date) || getTodayDate(),
-        start_time: formatTime(session.start_time) || '',
+        start_time: formatTime(session.start_time) || "",
         duration: session.duration || 60,
-        session_type: session.session_type || 'private',
-        delivery_mode: session.delivery_mode || 'online',
-        location: session.location || '',
-        meeting_link: session.meeting_link || '',
+        session_type: session.session_type || "private",
+        delivery_mode: session.delivery_mode || "online",
+        location: session.location || "",
+        meeting_link: session.meeting_link || "",
       });
     }
   }, [session]);
@@ -49,10 +57,15 @@ const SessionForm = ({ session, onSuccess, onCancel }) => {
   // Check for conflicts when relevant fields change
   useEffect(() => {
     const checkConflicts = async () => {
-      if (formData.tutor_id && formData.date && formData.start_time && formData.duration) {
+      if (
+        formData.tutor_id &&
+        formData.date &&
+        formData.start_time &&
+        formData.duration
+      ) {
         setCheckingConflicts(true);
         const result = await checkForConflicts(formData, session?.id);
-        
+
         if (result.hasConflict) {
           setConflictWarning({
             message: formatConflictMessage(result.conflicts),
@@ -68,15 +81,28 @@ const SessionForm = ({ session, onSuccess, onCancel }) => {
     // Debounce conflict check
     const timer = setTimeout(checkConflicts, 500);
     return () => clearTimeout(timer);
-  }, [formData.tutor_id, formData.date, formData.start_time, formData.duration, session?.id]);
+  }, [
+    formData.tutor_id,
+    formData.date,
+    formData.start_time,
+    formData.duration,
+    session?.id,
+  ]);
 
   const fetchTutorsAndStudents = async () => {
     try {
       setFetchingData(true);
 
       const [tutorsResult, studentsResult] = await Promise.all([
-        supabase.from('tutors').select('id, name, subjects').eq('is_active', true).order('name'),
-        supabase.from('students').select('id, name, subjects_needed').order('name'),
+        supabase
+          .from("tutors")
+          .select("id, name, subjects")
+          .eq("is_active", true)
+          .order("name"),
+        supabase
+          .from("students")
+          .select("id, first_name, last_name, subjects_needed")
+          .order("first_name"),
       ]);
 
       if (tutorsResult.error) throw tutorsResult.error;
@@ -85,8 +111,8 @@ const SessionForm = ({ session, onSuccess, onCancel }) => {
       setTutors(tutorsResult.data || []);
       setStudents(studentsResult.data || []);
     } catch (err) {
-      console.error('Error fetching data:', err);
-      setError('Failed to load tutors and students');
+      console.error("Error fetching data:", err);
+      setError("Failed to load tutors and students");
     } finally {
       setFetchingData(false);
     }
@@ -94,24 +120,24 @@ const SessionForm = ({ session, onSuccess, onCancel }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Warn if there are conflicts
     if (conflictWarning) {
       const proceed = window.confirm(
-        'There are scheduling conflicts:\n\n' +
-        conflictWarning.message +
-        '\n\nDo you want to proceed anyway?'
+        "There are scheduling conflicts:\n\n" +
+          conflictWarning.message +
+          "\n\nDo you want to proceed anyway?"
       );
       if (!proceed) return;
     }
 
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       const sessionData = {
@@ -123,32 +149,34 @@ const SessionForm = ({ session, onSuccess, onCancel }) => {
         duration: parseInt(formData.duration),
         session_type: formData.session_type,
         delivery_mode: formData.delivery_mode,
-        location: formData.delivery_mode === 'in-person' ? formData.location : null,
-        meeting_link: formData.delivery_mode === 'online' ? formData.meeting_link : null,
-        status: 'scheduled',
+        location:
+          formData.delivery_mode === "in-person" ? formData.location : null,
+        meeting_link:
+          formData.delivery_mode === "online" ? formData.meeting_link : null,
+        status: "scheduled",
       };
 
       if (session) {
         // Update existing session
         const { error: updateError } = await supabase
-          .from('sessions')
+          .from("sessions")
           .update({ ...sessionData, updated_at: new Date().toISOString() })
-          .eq('id', session.id);
+          .eq("id", session.id);
 
         if (updateError) throw updateError;
-        onSuccess('Session updated successfully!');
+        onSuccess("Session updated successfully!");
       } else {
         // Create new session
         const { error: insertError } = await supabase
-          .from('sessions')
+          .from("sessions")
           .insert([sessionData]);
 
         if (insertError) throw insertError;
-        onSuccess('Session created successfully!');
+        onSuccess("Session created successfully!");
       }
     } catch (err) {
-      console.error('Error saving session:', err);
-      setError(err.message || 'Failed to save session');
+      console.error("Error saving session:", err);
+      setError(err.message || "Failed to save session");
     } finally {
       setLoading(false);
     }
@@ -163,9 +191,10 @@ const SessionForm = ({ session, onSuccess, onCancel }) => {
     );
   }
 
-  const endTime = formData.start_time && formData.duration 
-    ? calculateEndTime(formData.start_time, formData.duration)
-    : null;
+  const endTime =
+    formData.start_time && formData.duration
+      ? calculateEndTime(formData.start_time, formData.duration)
+      : null;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -178,12 +207,22 @@ const SessionForm = ({ session, onSuccess, onCancel }) => {
       {conflictWarning && (
         <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 rounded">
           <div className="flex items-start">
-            <svg className="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            <svg
+              className="w-5 h-5 mr-2 flex-shrink-0 mt-0.5"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                clipRule="evenodd"
+              />
             </svg>
             <div>
               <strong>Scheduling Conflict Detected!</strong>
-              <pre className="mt-2 text-sm whitespace-pre-wrap">{conflictWarning.message}</pre>
+              <pre className="mt-2 text-sm whitespace-pre-wrap">
+                {conflictWarning.message}
+              </pre>
             </div>
           </div>
         </div>
@@ -191,7 +230,10 @@ const SessionForm = ({ session, onSuccess, onCancel }) => {
 
       <div className="grid md:grid-cols-2 gap-6">
         <div>
-          <label htmlFor="tutor_id" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="tutor_id"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             Tutor *
           </label>
           <select
@@ -203,16 +245,19 @@ const SessionForm = ({ session, onSuccess, onCancel }) => {
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-purple focus:border-transparent"
           >
             <option value="">Select tutor...</option>
-            {tutors.map(tutor => (
+            {tutors.map((tutor) => (
               <option key={tutor.id} value={tutor.id}>
-                {tutor.name} ({tutor.subjects?.join(', ')})
+                {tutor.name} ({tutor.subjects?.join(", ")})
               </option>
             ))}
           </select>
         </div>
 
         <div>
-          <label htmlFor="student_id" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="student_id"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             Student *
           </label>
           <select
@@ -224,9 +269,10 @@ const SessionForm = ({ session, onSuccess, onCancel }) => {
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-purple focus:border-transparent"
           >
             <option value="">Select student...</option>
-            {students.map(student => (
+            {students.map((student) => (
               <option key={student.id} value={student.id}>
-                {student.name} (needs: {student.subjects_needed?.join(', ')})
+                {student.first_name} {student.last_name} (needs:{" "}
+                {student.subjects_needed?.join(", ")})
               </option>
             ))}
           </select>
@@ -234,7 +280,10 @@ const SessionForm = ({ session, onSuccess, onCancel }) => {
       </div>
 
       <div>
-        <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
+        <label
+          htmlFor="subject"
+          className="block text-sm font-medium text-gray-700 mb-2"
+        >
           Subject *
         </label>
         <input
@@ -251,7 +300,10 @@ const SessionForm = ({ session, onSuccess, onCancel }) => {
 
       <div className="grid md:grid-cols-3 gap-4">
         <div>
-          <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="date"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             Date *
           </label>
           <input
@@ -267,7 +319,10 @@ const SessionForm = ({ session, onSuccess, onCancel }) => {
         </div>
 
         <div>
-          <label htmlFor="start_time" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="start_time"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             Start Time *
           </label>
           <input
@@ -279,11 +334,18 @@ const SessionForm = ({ session, onSuccess, onCancel }) => {
             onChange={handleChange}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-purple focus:border-transparent"
           />
-          {checkingConflicts && <p className="text-xs text-gray-500 mt-1">Checking availability...</p>}
+          {checkingConflicts && (
+            <p className="text-xs text-gray-500 mt-1">
+              Checking availability...
+            </p>
+          )}
         </div>
 
         <div>
-          <label htmlFor="duration" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="duration"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             Duration (minutes) *
           </label>
           <select
@@ -311,7 +373,10 @@ const SessionForm = ({ session, onSuccess, onCancel }) => {
 
       <div className="grid md:grid-cols-2 gap-6">
         <div>
-          <label htmlFor="session_type" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="session_type"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             Session Type *
           </label>
           <select
@@ -328,7 +393,10 @@ const SessionForm = ({ session, onSuccess, onCancel }) => {
         </div>
 
         <div>
-          <label htmlFor="delivery_mode" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="delivery_mode"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             Delivery Mode *
           </label>
           <select
@@ -345,9 +413,12 @@ const SessionForm = ({ session, onSuccess, onCancel }) => {
         </div>
       </div>
 
-      {formData.delivery_mode === 'online' && (
+      {formData.delivery_mode === "online" && (
         <div>
-          <label htmlFor="meeting_link" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="meeting_link"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             Meeting Link
           </label>
           <input
@@ -362,9 +433,12 @@ const SessionForm = ({ session, onSuccess, onCancel }) => {
         </div>
       )}
 
-      {formData.delivery_mode === 'in-person' && (
+      {formData.delivery_mode === "in-person" && (
         <div>
-          <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="location"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             Location
           </label>
           <input
@@ -385,7 +459,11 @@ const SessionForm = ({ session, onSuccess, onCancel }) => {
           disabled={loading || checkingConflicts}
           className="flex-1 bg-primary-purple text-white py-3 rounded-lg font-semibold hover:bg-opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? 'Saving...' : session ? 'Update Session' : 'Create Session'}
+          {loading
+            ? "Saving..."
+            : session
+            ? "Update Session"
+            : "Create Session"}
         </button>
         <button
           type="button"
@@ -401,4 +479,3 @@ const SessionForm = ({ session, onSuccess, onCancel }) => {
 };
 
 export default SessionForm;
-

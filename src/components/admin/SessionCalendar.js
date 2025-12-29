@@ -25,13 +25,13 @@ const SessionCalendar = ({ sessions, tutors, students, onSelectEvent, onSelectSl
 
       return {
         id: session.id,
-        title: `${session.subject} - ${student?.name || 'Unknown'}`,
+        title: `${session.subject} - ${student ? `${student.first_name} ${student.last_name}` : 'Unknown'}`,
         start: startDateTime,
         end: endDateTime,
         resource: {
           ...session,
           tutorName: tutor?.name || 'Unknown Tutor',
-          studentName: student?.name || 'Unknown Student',
+          studentName: student ? `${student.first_name} ${student.last_name}` : 'Unknown Student',
         },
       };
     });

@@ -1,213 +1,421 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import emailjs from '@emailjs/browser';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import Alert from '../components/Alert';
+import React, { useState } from "react";
+import emailjs from "@emailjs/browser";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import Alert from "../components/Alert";
 
 const Apply = () => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    subjects: '',
-    bio: '',
-    whyInterested: '',
+    fullName: "",
+    phone: "",
+    email: "",
+    experience: "",
+    availability: "Less than 5 hours",
+    tutorLevel: "Primary",
+    schoolSubjects: "",
+    uniCourses: "",
+    mode: "Online",
+    areas: "",
+  });
+  const [files, setFiles] = useState({
+    matricFile: null,
+    transcriptFile: null,
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
+
+  const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4MB
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    const fieldName = e.target.name;
+
+    if (file) {
+      if (file.size > MAX_FILE_SIZE) {
+        setError(
+          `${
+            fieldName === "matricFile"
+              ? "Matric certificate"
+              : "University transcript"
+          } file is larger than 4 MB. Please upload a smaller file.`
+        );
+        e.target.value = "";
+        return;
+      }
+      if (file.type !== "application/pdf") {
+        setError("Please upload PDF files only.");
+        e.target.value = "";
+        return;
+      }
+      setFiles({
+        ...files,
+        [fieldName]: file,
+      });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
     setSuccess(false);
 
     try {
-      // Send email using EmailJS
+      // Note: EmailJS doesn't support file attachments directly
+      // Files would need to be handled by a backend endpoint
       await emailjs.send(
         process.env.REACT_APP_EMAILJS_SERVICE_ID,
         process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
         {
-          to_name: 'LearnGevity Admin',
-          from_name: formData.name,
+          to_name: "LearnGevity Admin",
+          from_name: formData.fullName,
           from_email: formData.email,
           phone: formData.phone,
-          subjects: formData.subjects,
-          bio: formData.bio,
-          why_interested: formData.whyInterested,
+          experience: formData.experience,
+          availability: formData.availability,
+          tutor_level: formData.tutorLevel,
+          school_subjects: formData.schoolSubjects || "N/A",
+          uni_courses: formData.uniCourses || "N/A",
+          mode: formData.mode,
+          areas: formData.areas || "N/A",
+          has_matric: files.matricFile ? "Yes (file uploaded)" : "No",
+          has_transcript: files.transcriptFile ? "Yes (file uploaded)" : "No",
         },
         process.env.REACT_APP_EMAILJS_PUBLIC_KEY
       );
 
       setSuccess(true);
       setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        subjects: '',
-        bio: '',
-        whyInterested: '',
+        fullName: "",
+        phone: "",
+        email: "",
+        experience: "",
+        availability: "Less than 5 hours",
+        tutorLevel: "Primary",
+        schoolSubjects: "",
+        uniCourses: "",
+        mode: "Online",
+        areas: "",
       });
+      setFiles({
+        matricFile: null,
+        transcriptFile: null,
+      });
+      // Reset file inputs
+      document.getElementById("matricFile").value = "";
+      document.getElementById("transcriptFile").value = "";
     } catch (err) {
-      setError('Failed to submit application. Please try again or contact us directly.');
-      console.error('EmailJS error:', err);
+      setError(
+        "Failed to submit application. Please try again or contact us directly."
+      );
+      console.error("EmailJS error:", err);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-primary-navy via-[#0a1238] to-[#061027]">
       <Navbar />
 
-      <div className="max-w-3xl mx-auto px-4 py-16">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-primary-navy mb-4">Become a Tutor</h1>
-          <p className="text-xl text-gray-600">Join our team of passionate educators</p>
+      {/* Application Section */}
+      <section className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        <div className="w-full max-w-3xl">
+          {success ? (
+            <div className="bg-gradient-to-br from-[#d8c7ff] to-primary-purple rounded-2xl p-8 sm:p-12 shadow-2xl text-center animate-fade-in">
+              <div className="text-6xl mb-6">🎉</div>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-primary-navy mb-4 uppercase">
+                Application Submitted!
+              </h2>
+              <p className="text-primary-navy/90 text-lg leading-relaxed">
+                Thank you for applying to become a LearnGevity tutor! You will
+                receive feedback within <strong>10–15 business days</strong>.
+              </p>
+            </div>
+          ) : (
+            <div className="bg-gradient-to-br from-[#d8c7ff] to-primary-purple rounded-2xl p-6 sm:p-10 shadow-2xl animate-fade-in">
+              <h1 className="text-3xl sm:text-4xl font-extrabold text-primary-navy text-center mb-8 uppercase tracking-wide">
+                Become a LearnGevity Tutor
+              </h1>
+
+              {error && (
+                <div className="mb-6 bg-red-500/20 border-2 border-red-600 text-red-900 px-4 py-3 rounded-lg">
+                  {error}
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-5">
+                {/* Full Name */}
+                <div>
+                  <label
+                    htmlFor="fullName"
+                    className="block text-lg font-bold text-primary-navy mb-2"
+                  >
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    id="fullName"
+                    name="fullName"
+                    required
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3.5 rounded-xl border-none outline-none text-base bg-white/95 text-primary-navy shadow-md focus:shadow-[0_0_0_3px_rgba(106,76,255,0.5)] transition-shadow"
+                    placeholder="John Doe"
+                  />
+                </div>
+
+                {/* Phone Number */}
+                <div>
+                  <label
+                    htmlFor="phone"
+                    className="block text-lg font-bold text-primary-navy mb-2"
+                  >
+                    Phone Number *
+                  </label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    required
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3.5 rounded-xl border-none outline-none text-base bg-white/95 text-primary-navy shadow-md focus:shadow-[0_0_0_3px_rgba(106,76,255,0.5)] transition-shadow"
+                    placeholder="(555) 123-4567"
+                  />
+                </div>
+
+                {/* Email Address */}
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-lg font-bold text-primary-navy mb-2"
+                  >
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    required
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3.5 rounded-xl border-none outline-none text-base bg-white/95 text-primary-navy shadow-md focus:shadow-[0_0_0_3px_rgba(106,76,255,0.5)] transition-shadow"
+                    placeholder="john@example.com"
+                  />
+                </div>
+
+                {/* Tutoring Experience */}
+                <div>
+                  <label
+                    htmlFor="experience"
+                    className="block text-lg font-bold text-primary-navy mb-2"
+                  >
+                    Tutoring Experience *
+                  </label>
+                  <input
+                    type="text"
+                    id="experience"
+                    name="experience"
+                    required
+                    value={formData.experience}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3.5 rounded-xl border-none outline-none text-base bg-white/95 text-primary-navy shadow-md focus:shadow-[0_0_0_3px_rgba(106,76,255,0.5)] transition-shadow"
+                    placeholder="e.g., 2 years of online tutoring"
+                  />
+                </div>
+
+                {/* Weekly Availability */}
+                <div>
+                  <label
+                    htmlFor="availability"
+                    className="block text-lg font-bold text-primary-navy mb-2"
+                  >
+                    Your Weekly Availability *
+                  </label>
+                  <select
+                    id="availability"
+                    name="availability"
+                    required
+                    value={formData.availability}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3.5 rounded-xl border-none outline-none text-base bg-white/95 text-primary-navy shadow-md focus:shadow-[0_0_0_3px_rgba(106,76,255,0.5)] transition-shadow"
+                  >
+                    <option value="Less than 5 hours">Less than 5 hours</option>
+                    <option value="Between 5–10 hours">
+                      Between 5–10 hours
+                    </option>
+                    <option value="More than 10 hours">
+                      More than 10 hours
+                    </option>
+                  </select>
+                </div>
+
+                {/* Tutor Level */}
+                <div>
+                  <label
+                    htmlFor="tutorLevel"
+                    className="block text-lg font-bold text-primary-navy mb-2"
+                  >
+                    Tutor Level *
+                  </label>
+                  <select
+                    id="tutorLevel"
+                    name="tutorLevel"
+                    required
+                    value={formData.tutorLevel}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3.5 rounded-xl border-none outline-none text-base bg-white/95 text-primary-navy shadow-md focus:shadow-[0_0_0_3px_rgba(106,76,255,0.5)] transition-shadow"
+                  >
+                    <option value="Primary">Primary School</option>
+                    <option value="High School">High School</option>
+                    <option value="University">University</option>
+                    <option value="All">All of the Above</option>
+                  </select>
+                </div>
+
+                {/* Matric Certificate */}
+                <div>
+                  <label
+                    htmlFor="matricFile"
+                    className="block text-lg font-bold text-primary-navy mb-2"
+                  >
+                    Matric Certificate (optional)
+                  </label>
+                  <input
+                    type="file"
+                    id="matricFile"
+                    name="matricFile"
+                    accept="application/pdf"
+                    onChange={handleFileChange}
+                    className="w-full px-3 py-2.5 rounded-xl bg-white border-2 border-dashed border-primary-purple text-primary-navy file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-primary-purple file:text-white file:font-bold hover:file:bg-primary-purple/90 file:cursor-pointer"
+                  />
+                  <small className="text-primary-navy/70 text-sm">
+                    Max file size: <strong>4 MB</strong> (PDF only)
+                  </small>
+                </div>
+
+                {/* University Transcript */}
+                <div>
+                  <label
+                    htmlFor="transcriptFile"
+                    className="block text-lg font-bold text-primary-navy mb-2"
+                  >
+                    University Transcript (optional)
+                  </label>
+                  <input
+                    type="file"
+                    id="transcriptFile"
+                    name="transcriptFile"
+                    accept="application/pdf"
+                    onChange={handleFileChange}
+                    className="w-full px-3 py-2.5 rounded-xl bg-white border-2 border-dashed border-primary-purple text-primary-navy file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-primary-purple file:text-white file:font-bold hover:file:bg-primary-purple/90 file:cursor-pointer"
+                  />
+                  <small className="text-primary-navy/70 text-sm">
+                    Max file size: <strong>4 MB</strong> (PDF only)
+                  </small>
+                </div>
+
+                {/* High School Subjects */}
+                <div>
+                  <label
+                    htmlFor="schoolSubjects"
+                    className="block text-lg font-bold text-primary-navy mb-2"
+                  >
+                    High School Subjects
+                  </label>
+                  <input
+                    type="text"
+                    id="schoolSubjects"
+                    name="schoolSubjects"
+                    value={formData.schoolSubjects}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3.5 rounded-xl border-none outline-none text-base bg-white/95 text-primary-navy shadow-md focus:shadow-[0_0_0_3px_rgba(106,76,255,0.5)] transition-shadow"
+                    placeholder="e.g., Math, Physics, English"
+                  />
+                </div>
+
+                {/* University Courses */}
+                <div>
+                  <label
+                    htmlFor="uniCourses"
+                    className="block text-lg font-bold text-primary-navy mb-2"
+                  >
+                    University Courses (if any)
+                  </label>
+                  <input
+                    type="text"
+                    id="uniCourses"
+                    name="uniCourses"
+                    value={formData.uniCourses}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3.5 rounded-xl border-none outline-none text-base bg-white/95 text-primary-navy shadow-md focus:shadow-[0_0_0_3px_rgba(106,76,255,0.5)] transition-shadow"
+                    placeholder="e.g., Calculus I, Data Structures"
+                  />
+                </div>
+
+                {/* Mode */}
+                <div>
+                  <label
+                    htmlFor="mode"
+                    className="block text-lg font-bold text-primary-navy mb-2"
+                  >
+                    Mode *
+                  </label>
+                  <select
+                    id="mode"
+                    name="mode"
+                    required
+                    value={formData.mode}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3.5 rounded-xl border-none outline-none text-base bg-white/95 text-primary-navy shadow-md focus:shadow-[0_0_0_3px_rgba(106,76,255,0.5)] transition-shadow"
+                  >
+                    <option value="Online">Online</option>
+                    <option value="In-Person">In-Person</option>
+                    <option value="Both">Both</option>
+                  </select>
+                </div>
+
+                {/* Areas */}
+                <div>
+                  <label
+                    htmlFor="areas"
+                    className="block text-lg font-bold text-primary-navy mb-2"
+                  >
+                    Areas (if in-person)
+                  </label>
+                  <input
+                    type="text"
+                    id="areas"
+                    name="areas"
+                    value={formData.areas}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3.5 rounded-xl border-none outline-none text-base bg-white/95 text-primary-navy shadow-md focus:shadow-[0_0_0_3px_rgba(106,76,255,0.5)] transition-shadow"
+                    placeholder="e.g., Cape Town, Durban"
+                  />
+                </div>
+
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full px-4 py-4 bg-primary-navy text-white border-none rounded-xl text-xl font-bold mt-8 cursor-pointer transition-all hover:bg-primary-orange hover:text-primary-navy disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? "Submitting..." : "Submit Application"}
+                </button>
+              </form>
+            </div>
+          )}
         </div>
-
-        {success && (
-          <Alert 
-            type="success" 
-            message={
-              <>
-                <strong>Application Submitted Successfully!</strong>
-                <p className="mt-1">Thank you for your interest. We'll review your application and get back to you soon.</p>
-              </>
-            }
-            onClose={() => setSuccess(false)}
-          />
-        )}
-
-        {error && (
-          <Alert 
-            type="error" 
-            message={error}
-            onClose={() => setError('')}
-          />
-        )}
-
-        <div className="bg-white rounded-lg shadow-md p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                Full Name *
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                required
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-purple focus:border-transparent"
-                placeholder="John Doe"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address *
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                required
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-purple focus:border-transparent"
-                placeholder="john@example.com"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                Phone Number *
-              </label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                required
-                value={formData.phone}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-purple focus:border-transparent"
-                placeholder="(555) 123-4567"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="subjects" className="block text-sm font-medium text-gray-700 mb-2">
-                Subjects You Can Teach *
-              </label>
-              <input
-                type="text"
-                id="subjects"
-                name="subjects"
-                required
-                value={formData.subjects}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-purple focus:border-transparent"
-                placeholder="e.g., Math, Science, English"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-2">
-                Brief Bio & Teaching Experience *
-              </label>
-              <textarea
-                id="bio"
-                name="bio"
-                required
-                rows="4"
-                value={formData.bio}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-purple focus:border-transparent"
-                placeholder="Tell us about your education background and teaching experience..."
-              />
-            </div>
-
-            <div>
-              <label htmlFor="whyInterested" className="block text-sm font-medium text-gray-700 mb-2">
-                Why do you want to join LearnGevity? *
-              </label>
-              <textarea
-                id="whyInterested"
-                name="whyInterested"
-                required
-                rows="4"
-                value={formData.whyInterested}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-purple focus:border-transparent"
-                placeholder="Share your motivation and what makes you a great fit..."
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-primary-purple text-white py-3 rounded-lg font-semibold hover:bg-opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Submitting...' : 'Submit Application'}
-            </button>
-          </form>
-        </div>
-
-        <div className="mt-8 text-center text-gray-600">
-          <p>Have questions? <Link to="/contact" className="text-primary-purple hover:underline">Contact us</Link></p>
-        </div>
-      </div>
+      </section>
 
       <Footer />
     </div>
@@ -215,4 +423,3 @@ const Apply = () => {
 };
 
 export default Apply;
-

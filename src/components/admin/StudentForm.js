@@ -3,12 +3,12 @@ import { supabase } from '../../lib/supabaseClient';
 
 const StudentForm = ({ student, onSuccess, onCancel }) => {
   const [formData, setFormData] = useState({
-    name: '',
-    age: '',
-    parent_name: '',
-    parent_email: '',
-    parent_phone: '',
+    first_name: '',
+    last_name: '',
+    email: '',
+    phone: '',
     subjects_needed: [],
+    preferred_lesson_type: 'Online',
   });
   const [subjectInput, setSubjectInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -17,12 +17,12 @@ const StudentForm = ({ student, onSuccess, onCancel }) => {
   useEffect(() => {
     if (student) {
       setFormData({
-        name: student.name || '',
-        age: student.age || '',
-        parent_name: student.parent_name || '',
-        parent_email: student.parent_email || '',
-        parent_phone: student.parent_phone || '',
+        first_name: student.first_name || '',
+        last_name: student.last_name || '',
+        email: student.email || '',
+        phone: student.phone || '',
         subjects_needed: student.subjects_needed || [],
+        preferred_lesson_type: student.preferred_lesson_type || 'Online',
       });
     }
   }, [student]);
@@ -57,12 +57,12 @@ const StudentForm = ({ student, onSuccess, onCancel }) => {
 
     try {
       const studentData = {
-        name: formData.name,
-        age: parseInt(formData.age),
-        parent_name: formData.parent_name,
-        parent_email: formData.parent_email,
-        parent_phone: formData.parent_phone,
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        email: formData.email,
+        phone: formData.phone,
         subjects_needed: formData.subjects_needed,
+        preferred_lesson_type: formData.preferred_lesson_type,
       };
 
       if (student) {
@@ -101,93 +101,87 @@ const StudentForm = ({ student, onSuccess, onCancel }) => {
 
       <div className="grid md:grid-cols-2 gap-6">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-            Student Name *
+          <label htmlFor="first_name" className="block text-sm font-medium text-gray-700 mb-2">
+            First Name *
           </label>
           <input
             type="text"
-            id="name"
-            name="name"
+            id="first_name"
+            name="first_name"
             required
-            value={formData.name}
+            value={formData.first_name}
             onChange={handleChange}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-purple focus:border-transparent"
-            placeholder="Jane Smith"
+            placeholder="Jane"
           />
         </div>
 
         <div>
-          <label htmlFor="age" className="block text-sm font-medium text-gray-700 mb-2">
-            Age
+          <label htmlFor="last_name" className="block text-sm font-medium text-gray-700 mb-2">
+            Last Name *
           </label>
           <input
-            type="number"
-            id="age"
-            name="age"
-            min="1"
-            max="100"
-            value={formData.age}
+            type="text"
+            id="last_name"
+            name="last_name"
+            required
+            value={formData.last_name}
             onChange={handleChange}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-purple focus:border-transparent"
-            placeholder="15"
+            placeholder="Smith"
           />
         </div>
       </div>
 
-      <div className="border-t pt-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Parent/Guardian Information</h3>
-        
-        <div className="space-y-4">
-          <div>
-            <label htmlFor="parent_name" className="block text-sm font-medium text-gray-700 mb-2">
-              Parent/Guardian Name *
-            </label>
-            <input
-              type="text"
-              id="parent_name"
-              name="parent_name"
-              required
-              value={formData.parent_name}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-purple focus:border-transparent"
-              placeholder="John Smith"
-            />
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="parent_email" className="block text-sm font-medium text-gray-700 mb-2">
-                Parent Email *
-              </label>
-              <input
-                type="email"
-                id="parent_email"
-                name="parent_email"
-                required
-                value={formData.parent_email}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-purple focus:border-transparent"
-                placeholder="parent@example.com"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="parent_phone" className="block text-sm font-medium text-gray-700 mb-2">
-                Parent Phone *
-              </label>
-              <input
-                type="tel"
-                id="parent_phone"
-                name="parent_phone"
-                required
-                value={formData.parent_phone}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-purple focus:border-transparent"
-                placeholder="(555) 123-4567"
-              />
-            </div>
-          </div>
+      <div className="grid md:grid-cols-2 gap-6">
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+            Email Address *
+          </label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            required
+            value={formData.email}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-purple focus:border-transparent"
+            placeholder="jane.smith@example.com"
+          />
         </div>
+
+        <div>
+          <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+            Phone Number *
+          </label>
+          <input
+            type="tel"
+            id="phone"
+            name="phone"
+            required
+            value={formData.phone}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-purple focus:border-transparent"
+            placeholder="(555) 123-4567"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label htmlFor="preferred_lesson_type" className="block text-sm font-medium text-gray-700 mb-2">
+          Preferred Lesson Type *
+        </label>
+        <select
+          id="preferred_lesson_type"
+          name="preferred_lesson_type"
+          required
+          value={formData.preferred_lesson_type}
+          onChange={handleChange}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-purple focus:border-transparent"
+        >
+          <option value="Online">Online</option>
+          <option value="In-person">In-person</option>
+        </select>
       </div>
 
       <div>

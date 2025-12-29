@@ -61,7 +61,7 @@ const checkSessionConflicts = async (tutorId, date, startTime, endTime, excludeS
   try {
     let query = supabase
       .from('sessions')
-      .select('id, subject, start_time, duration, student:students(name)')
+      .select('id, subject, start_time, duration, student:students(first_name, last_name)')
       .eq('tutor_id', tutorId)
       .eq('date', date)
       .neq('status', 'cancelled');
@@ -96,7 +96,7 @@ const checkSessionConflicts = async (tutorId, date, startTime, endTime, excludeS
     return conflicts.map(session => ({
       id: session.id,
       subject: session.subject,
-      student: session.student?.name || 'Unknown',
+      student: session.student ? `${session.student.first_name} ${session.student.last_name}` : 'Unknown',
       start_time: session.start_time,
       duration: session.duration,
     }));

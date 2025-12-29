@@ -1,21 +1,48 @@
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 import Logo from "../assets/learngevity-logo.png";
 
 const Navbar = ({ dark = true }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, isAdmin, isTutor, signOut } = useAuth();
 
-  const navLinks = [
+  // Filter out Apply link if user is logged in (they don't need to apply)
+  const publicLinks = [
     { to: "/", label: "Home" },
     { to: "/about", label: "About" },
     { to: "/pricing", label: "Pricing" },
     { to: "/tutors", label: "Tutors" },
-    { to: "/apply", label: "APPLY" },
     { to: "/contact", label: "Contact Us" },
   ];
 
+  const navLinks = user
+    ? publicLinks
+    : [
+        ...publicLinks.slice(0, 4),
+        { to: "/apply", label: "APPLY" },
+        publicLinks[4],
+      ];
+
   const isActive = (path) => location.pathname === path;
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate("/");
+      setMobileMenuOpen(false);
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
+  const getDashboardLink = () => {
+    if (isAdmin()) return "/admin/dashboard";
+    if (isTutor()) return "/tutor/dashboard";
+    return null;
+  };
 
   return (
     <nav
@@ -30,7 +57,7 @@ const Navbar = ({ dark = true }) => {
           {/* Logo/Brand */}
           <Link
             to="/"
-            className={`flex items-center gap-2.5 font-extrabold text-xl sm:text-2xl ${
+            className={`flex items-center gap-2 font-extrabold text-lg sm:text-xl ${
               dark ? "text-white" : "text-primary-navy"
             } hover:opacity-80 transition`}
           >
@@ -45,12 +72,12 @@ const Navbar = ({ dark = true }) => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-7">
+          <div className="hidden lg:flex items-center space-x-6 xl:space-x-8">
             {navLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
-                className={`font-bold text-[0.95rem] uppercase tracking-wide px-3 py-2 rounded-lg transition-all ${
+                className={`font-bold text-[0.9rem] uppercase tracking-wide px-3 xl:px-4 py-2 rounded-lg transition-all ${
                   isActive(link.to)
                     ? "bg-primary-purple text-white"
                     : dark
@@ -61,12 +88,46 @@ const Navbar = ({ dark = true }) => {
                 {link.label}
               </Link>
             ))}
-            <Link
-              to="/login"
-              className="bg-gradient-to-r from-primary-purple to-primary-navy text-white px-5 py-2 rounded-lg hover:shadow-lg hover:-translate-y-0.5 transition-all font-bold uppercase text-sm"
-            >
-              Tutor Login
-            </Link>
+
+            {/* Show different options based on auth state */}
+            {user ? (
+              <>
+                {/* Dashboard Link */}
+                {getDashboardLink() && (
+                  <Link
+                    to={getDashboardLink()}
+                    className="bg-gradient-to-r from-primary-orange to-[#ff8800] text-white px-5 py-2 rounded-lg hover:shadow-lg hover:-translate-y-0.5 transition-all font-bold uppercase text-xs ml-2"
+                  >
+                    Dashboard
+                  </Link>
+                )}
+
+                {/* User Avatar & Logout */}
+                <div className="flex items-center gap-3 ml-2">
+                  {/* User Avatar - First Letter */}
+                  <div
+                    className="w-9 h-9 rounded-full bg-gradient-to-br from-primary-orange to-primary-purple flex items-center justify-center text-white font-bold text-sm shadow-lg"
+                    title={user.email}
+                  >
+                    {user.email?.charAt(0).toUpperCase()}
+                  </div>
+
+                  <button
+                    onClick={handleLogout}
+                    className="bg-white/10 text-white px-5 py-2 rounded-lg hover:bg-white/20 transition-all font-bold uppercase text-xs border border-white/20"
+                  >
+                    Logout
+                  </button>
+                </div>
+              </>
+            ) : (
+              <Link
+                to="/login"
+                className="bg-gradient-to-r from-primary-purple to-primary-navy text-white px-5 py-2 rounded-lg hover:shadow-lg hover:-translate-y-0.5 transition-all font-bold uppercase text-xs ml-2"
+              >
+                Tutor Login
+              </Link>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -128,13 +189,49 @@ const Navbar = ({ dark = true }) => {
                   {link.label}
                 </Link>
               ))}
-              <Link
-                to="/login"
-                onClick={() => setMobileMenuOpen(false)}
-                className="bg-gradient-to-r from-primary-purple to-primary-navy text-white px-4 py-3 rounded-lg hover:shadow-lg transition-all font-bold uppercase text-sm text-center mt-2"
-              >
-                Tutor Login
-              </Link>
+
+              {/* Auth-based navigation for mobile */}
+              {user ? (
+                <>
+                  {/* Dashboard Link */}
+                  {getDashboardLink() && (
+                    <Link
+                      to={getDashboardLink()}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="bg-gradient-to-r from-primary-orange to-[#ff8800] text-white px-4 py-3 rounded-lg hover:shadow-lg transition-all font-bold uppercase text-sm text-center mt-2"
+                    >
+                      Dashboard
+                    </Link>
+                  )}
+
+                  {/* User Info */}
+                  <div
+                    className={`px-4 py-2 ${
+                      dark ? "text-white/80" : "text-gray-600"
+                    } text-sm text-center border-t ${
+                      dark ? "border-white/10" : "border-gray-200"
+                    } mt-2 pt-4`}
+                  >
+                    Logged in as: <strong>{user.email?.split("@")[0]}</strong>
+                  </div>
+
+                  {/* Logout Button */}
+                  <button
+                    onClick={handleLogout}
+                    className="bg-white/10 text-white px-4 py-3 rounded-lg hover:bg-white/20 transition-all font-bold uppercase text-sm border border-white/20 mt-2"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <Link
+                  to="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="bg-gradient-to-r from-primary-purple to-primary-navy text-white px-4 py-3 rounded-lg hover:shadow-lg transition-all font-bold uppercase text-sm text-center mt-2"
+                >
+                  Tutor Login
+                </Link>
+              )}
             </div>
           </div>
         )}

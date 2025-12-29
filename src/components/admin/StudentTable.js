@@ -1,24 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 const StudentTable = ({ students, onEdit, onDelete, loading }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterSubject, setFilterSubject] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterSubject, setFilterSubject] = useState("");
 
   // Get all unique subjects from all students
-  const allSubjects = [...new Set(
-    students.flatMap(student => student.subjects_needed || [])
-  )].sort();
+  const allSubjects = [
+    ...new Set(students.flatMap((student) => student.subjects_needed || [])),
+  ].sort();
 
   // Filter students based on search and subject filter
-  const filteredStudents = students.filter(student => {
-    const matchesSearch = 
-      student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.parent_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.parent_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (student.subjects_needed || []).some(s => s.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    const matchesSubject = !filterSubject || (student.subjects_needed || []).includes(filterSubject);
-    
+  const filteredStudents = students.filter((student) => {
+    const matchesSearch =
+      student.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      student.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      student.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (student.subjects_needed || []).some((s) =>
+        s.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+
+    const matchesSubject =
+      !filterSubject || (student.subjects_needed || []).includes(filterSubject);
+
     return matchesSearch && matchesSubject;
   });
 
@@ -38,7 +42,7 @@ const StudentTable = ({ students, onEdit, onDelete, loading }) => {
         <div>
           <input
             type="text"
-            placeholder="Search by student name, parent name, email, or subject..."
+            placeholder="Search by student name, email, phone, or subject..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-purple focus:border-transparent"
@@ -51,8 +55,10 @@ const StudentTable = ({ students, onEdit, onDelete, loading }) => {
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-purple focus:border-transparent"
           >
             <option value="">All Subjects</option>
-            {allSubjects.map(subject => (
-              <option key={subject} value={subject}>{subject}</option>
+            {allSubjects.map((subject) => (
+              <option key={subject} value={subject}>
+                {subject}
+              </option>
             ))}
           </select>
         </div>
@@ -60,7 +66,8 @@ const StudentTable = ({ students, onEdit, onDelete, loading }) => {
 
       {/* Results count */}
       <div className="mb-4 text-sm text-gray-600">
-        Showing {filteredStudents.length} of {students.length} student{students.length !== 1 ? 's' : ''}
+        Showing {filteredStudents.length} of {students.length} student
+        {students.length !== 1 ? "s" : ""}
       </div>
 
       {/* Table */}
@@ -70,13 +77,16 @@ const StudentTable = ({ students, onEdit, onDelete, loading }) => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Student
+                  Student Name
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Parent/Guardian
+                  Email
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Contact
+                  Phone
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Lesson Type
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Subjects Needed
@@ -89,8 +99,13 @@ const StudentTable = ({ students, onEdit, onDelete, loading }) => {
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredStudents.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="px-6 py-12 text-center text-gray-500">
-                    {searchTerm || filterSubject ? 'No students match your search' : 'No students yet'}
+                  <td
+                    colSpan="6"
+                    className="px-6 py-12 text-center text-gray-500"
+                  >
+                    {searchTerm || filterSubject
+                      ? "No students match your search"
+                      : "No students yet"}
                   </td>
                 </tr>
               ) : (
@@ -100,34 +115,49 @@ const StudentTable = ({ students, onEdit, onDelete, loading }) => {
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10">
                           <div className="h-10 w-10 rounded-full bg-primary-orange bg-opacity-20 flex items-center justify-center text-primary-orange font-semibold">
-                            {student.name.charAt(0)}
+                            {student.first_name.charAt(0)}
                           </div>
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{student.name}</div>
-                          {student.age && (
-                            <div className="text-sm text-gray-500">Age {student.age}</div>
-                          )}
+                          <div className="text-sm font-medium text-gray-900">
+                            {student.first_name} {student.last_name}
+                          </div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{student.parent_name}</div>
+                      <div className="text-sm text-gray-900">
+                        {student.email}
+                      </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900">{student.parent_email}</div>
-                      <div className="text-sm text-gray-500">{student.parent_phone}</div>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">
+                        {student.phone}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          student.preferred_lesson_type === "Online"
+                            ? "bg-blue-100 text-blue-800"
+                            : "bg-green-100 text-green-800"
+                        }`}
+                      >
+                        {student.preferred_lesson_type || "Online"}
+                      </span>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex flex-wrap gap-1">
-                        {(student.subjects_needed || []).slice(0, 2).map((subject, idx) => (
-                          <span
-                            key={idx}
-                            className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-primary-orange bg-opacity-10 text-primary-orange"
-                          >
-                            {subject}
-                          </span>
-                        ))}
+                        {(student.subjects_needed || [])
+                          .slice(0, 2)
+                          .map((subject, idx) => (
+                            <span
+                              key={idx}
+                              className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-primary-orange bg-opacity-10 text-primary-orange"
+                            >
+                              {subject}
+                            </span>
+                          ))}
                         {(student.subjects_needed || []).length > 2 && (
                           <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-600">
                             +{(student.subjects_needed || []).length - 2}
@@ -161,4 +191,3 @@ const StudentTable = ({ students, onEdit, onDelete, loading }) => {
 };
 
 export default StudentTable;
-

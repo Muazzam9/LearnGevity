@@ -20,12 +20,12 @@ const MySchedule = ({ sessions, students, onSelectEvent }) => {
 
       return {
         id: session.id,
-        title: `${session.subject} - ${student?.name || 'Unknown'}`,
+        title: `${session.subject} - ${student ? `${student.first_name} ${student.last_name}` : 'Unknown'}`,
         start: startDateTime,
         end: endDateTime,
         resource: {
           ...session,
-          studentName: student?.name || 'Unknown Student',
+          studentName: student ? `${student.first_name} ${student.last_name}` : 'Unknown Student',
         },
       };
     });
