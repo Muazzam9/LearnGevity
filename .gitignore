@@ -32,14 +32,4 @@ create-prd.md
 
 # logs
 /logs
-logs.md 
-
-PROGRESS.md
-QUICK_START.md
-FIX-ADMIN-ROLE.md
-DEPLOYMENT_GUIDE.md
-TESTING_GUIDE.md
-TROUBLESHOOTING.md
-README.md
-STUDENT_FIELDS_UPDATE.md
-emailjs-booking-template.html
+logs.md
