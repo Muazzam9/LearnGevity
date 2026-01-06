@@ -101,7 +101,7 @@ const Footer = ({ dark = true }) => {
               </li>
               <li>
                 <Link
-                  to="/contact"
+                  to="/tutors"
                   className="text-white/70 hover:text-primary-orange transition text-sm font-medium"
                 >
                   Book a Session
