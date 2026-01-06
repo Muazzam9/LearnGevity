@@ -26,3 +26,10 @@ yarn-error.log*
 /tasks
 generate-tasks.md
 create-prd.md
+
+# database
+/database
+
+# logs
+/logs
+logs.md
