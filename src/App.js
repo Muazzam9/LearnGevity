@@ -9,6 +9,7 @@ import Pricing from './pages/Pricing';
 import Tutors from './pages/Tutors';
 import Apply from './pages/Apply';
 import Contact from './pages/Contact';
+import Terms from './pages/Terms';
 import Login from './pages/Login';
 
 // Admin Pages
@@ -31,6 +32,7 @@ function App() {
         <Route path="/tutors" element={<Tutors />} />
         <Route path="/apply" element={<Apply />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/terms" element={<Terms />} />
         <Route path="/login" element={<Login />} />
 
         {/* Admin Routes */}

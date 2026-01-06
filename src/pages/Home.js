@@ -44,7 +44,7 @@ const Home = () => {
           {/* CTA Button */}
           <div className="animate-fade-in-up delay-300">
             <Link
-              to="/about"
+              to="/tutors"
               className="inline-flex items-center justify-center bg-gradient-to-r from-primary-purple via-[#5a3aef] to-primary-navy text-white px-7 sm:px-9 py-3 sm:py-4 rounded-full font-bold text-base sm:text-lg shadow-2xl shadow-primary-purple/30 hover:-translate-y-1 hover:shadow-3xl hover:shadow-primary-purple/40 transition-all duration-300 ease-out group"
             >
               Become a student

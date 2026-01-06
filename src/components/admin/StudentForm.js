@@ -66,7 +66,6 @@ const StudentForm = ({ student, onSuccess, onCancel }) => {
       };
 
       if (student) {
-        // Update existing student
         const { error: updateError } = await supabase
           .from('students')
           .update(studentData)
@@ -75,7 +74,6 @@ const StudentForm = ({ student, onSuccess, onCancel }) => {
         if (updateError) throw updateError;
         onSuccess('Student updated successfully!');
       } else {
-        // Create new student
         const { error: insertError } = await supabase
           .from('students')
           .insert([studentData]);

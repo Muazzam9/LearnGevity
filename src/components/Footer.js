@@ -66,6 +66,14 @@ const Footer = ({ dark = true }) => {
                   Contact Us
                 </Link>
               </li>
+              <li>
+                <Link
+                  to="/terms"
+                  className="text-white/70 hover:text-primary-orange transition text-sm font-medium"
+                >
+                  Terms & Conditions
+                </Link>
+              </li>
             </ul>
           </div>
 

@@ -61,7 +61,6 @@ const TutorForm = ({ tutor, onSuccess, onCancel }) => {
 
     try {
       if (tutor) {
-        // Update existing tutor
         const { error: updateError } = await supabase
           .from('tutors')
           .update({
@@ -179,7 +178,7 @@ const TutorForm = ({ tutor, onSuccess, onCancel }) => {
 
         <div>
           <label htmlFor="hourly_rate" className="block text-sm font-medium text-gray-700 mb-2">
-            Hourly Rate ($) *
+            Hourly Rate (R) *
           </label>
           <input
             type="number"
@@ -191,7 +190,7 @@ const TutorForm = ({ tutor, onSuccess, onCancel }) => {
             value={formData.hourly_rate}
             onChange={handleChange}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-purple focus:border-transparent"
-            placeholder="50.00"
+            placeholder="250.00"
           />
         </div>
       </div>

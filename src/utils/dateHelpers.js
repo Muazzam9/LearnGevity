@@ -59,7 +59,6 @@ export const calculateEndTime = (startTime, durationMinutes) => {
   const startDate = new Date();
   startDate.setHours(hours, minutes, 0, 0);
   
-  // Add duration
   const endDate = addMinutes(startDate, durationMinutes);
   
   return formatTime(endDate);

@@ -157,7 +157,6 @@ const SessionForm = ({ session, onSuccess, onCancel }) => {
       };
 
       if (session) {
-        // Update existing session
         const { error: updateError } = await supabase
           .from("sessions")
           .update({ ...sessionData, updated_at: new Date().toISOString() })
@@ -166,7 +165,6 @@ const SessionForm = ({ session, onSuccess, onCancel }) => {
         if (updateError) throw updateError;
         onSuccess("Session updated successfully!");
       } else {
-        // Create new session
         const { error: insertError } = await supabase
           .from("sessions")
           .insert([sessionData]);

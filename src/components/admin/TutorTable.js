@@ -4,7 +4,6 @@ const TutorTable = ({ tutors, onEdit, onDelete, loading }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterSubject, setFilterSubject] = useState('');
 
-  // Get all unique subjects from all tutors
   const allSubjects = [...new Set(
     tutors.flatMap(tutor => tutor.subjects || [])
   )].sort();
@@ -31,7 +30,7 @@ const TutorTable = ({ tutors, onEdit, onDelete, loading }) => {
   }
 
   return (
-    <div>
+    <div className="p-4 sm:p-6">
       {/* Search and Filter */}
       <div className="mb-6 grid md:grid-cols-2 gap-4">
         <div>
@@ -63,9 +62,8 @@ const TutorTable = ({ tutors, onEdit, onDelete, loading }) => {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -143,7 +141,7 @@ const TutorTable = ({ tutors, onEdit, onDelete, loading }) => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-semibold text-primary-orange">
-                        ${tutor.hourly_rate}/hr
+                        R{tutor.hourly_rate}/hr
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -177,7 +175,6 @@ const TutorTable = ({ tutors, onEdit, onDelete, loading }) => {
             </tbody>
           </table>
         </div>
-      </div>
     </div>
   );
 };

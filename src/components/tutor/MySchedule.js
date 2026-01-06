@@ -11,10 +11,8 @@ const MySchedule = ({ sessions, students, onSelectEvent }) => {
     return sessions.map(session => {
       const student = students.find(s => s.id === session.student_id);
 
-      // Combine date and start_time to create start datetime
       const startDateTime = new Date(`${session.date}T${session.start_time}`);
       
-      // Calculate end datetime
       const endDateTime = new Date(startDateTime);
       endDateTime.setMinutes(endDateTime.getMinutes() + session.duration);
 

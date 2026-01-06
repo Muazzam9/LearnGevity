@@ -72,7 +72,6 @@ const AvailabilityManager = ({ tutorId }) => {
       };
 
       if (editingBlock) {
-        // Update existing block
         const { error: updateError } = await supabase
           .from('tutor_availability_blocks')
           .update(blockData)
@@ -81,7 +80,6 @@ const AvailabilityManager = ({ tutorId }) => {
         if (updateError) throw updateError;
         setSuccess('Availability block updated successfully!');
       } else {
-        // Create new block
         const { error: insertError } = await supabase
           .from('tutor_availability_blocks')
           .insert([blockData]);

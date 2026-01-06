@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { supabase } from '../../lib/supabaseClient';
-import { useAuth } from '../../hooks/useAuth';
-import StudentTable from '../../components/admin/StudentTable';
-import StudentForm from '../../components/admin/StudentForm';
-import Modal from '../../components/Modal';
-import Alert from '../../components/Alert';
-import { FaPlus, FaChalkboardTeacher, FaUserGraduate, FaCalendarAlt, FaHome } from 'react-icons/fa';
+import React, { useState, useEffect } from "react";
+import { supabase } from "../../lib/supabaseClient";
+import AdminLayout from "../../components/admin/AdminLayout";
+import StudentTable from "../../components/admin/StudentTable";
+import StudentForm from "../../components/admin/StudentForm";
+import Modal from "../../components/Modal";
+import Alert from "../../components/Alert";
+import { FaPlus } from "react-icons/fa";
 
 const StudentManagement = () => {
   const [students, setStudents] = useState([]);
@@ -15,8 +14,6 @@ const StudentManagement = () => {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [alert, setAlert] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
-  const { signOut, user } = useAuth();
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetchStudents();
@@ -26,15 +23,15 @@ const StudentManagement = () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from('students')
-        .select('*')
-        .order('first_name');
+        .from("students")
+        .select("*")
+        .order("first_name");
 
       if (error) throw error;
       setStudents(data || []);
     } catch (error) {
-      console.error('Error fetching students:', error);
-      showAlert('error', 'Failed to load students');
+      console.error("Error fetching students:", error);
+      showAlert("error", "Failed to load students");
     } finally {
       setLoading(false);
     }
@@ -59,16 +56,16 @@ const StudentManagement = () => {
 
     try {
       const { error } = await supabase
-        .from('students')
+        .from("students")
         .delete()
-        .eq('id', deleteConfirm.id);
+        .eq("id", deleteConfirm.id);
 
       if (error) throw error;
-      showAlert('success', 'Student deleted successfully');
+      showAlert("success", "Student deleted successfully");
       fetchStudents();
     } catch (error) {
-      console.error('Error deleting student:', error);
-      showAlert('error', 'Failed to delete student');
+      console.error("Error deleting student:", error);
+      showAlert("error", "Failed to delete student");
     } finally {
       setDeleteConfirm(null);
     }
@@ -77,7 +74,7 @@ const StudentManagement = () => {
   const handleFormSuccess = (message) => {
     setShowModal(false);
     setSelectedStudent(null);
-    showAlert('success', message);
+    showAlert("success", message);
     fetchStudents();
   };
 
@@ -85,99 +82,42 @@ const StudentManagement = () => {
     setAlert({ type, message });
   };
 
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      navigate('/login');
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Navigation */}
-      <nav className="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4 sm:space-x-8 lg:space-x-12 overflow-x-auto">
-              <Link to="/admin/dashboard" className="text-lg sm:text-xl font-bold bg-gradient-to-r from-primary-purple to-primary-navy bg-clip-text text-transparent whitespace-nowrap flex items-center gap-2">
-                <FaHome className="text-primary-navy text-base sm:text-lg" />
-                <span className="hidden sm:inline">LearnGevity Admin</span>
-              </Link>
-              <div className="flex space-x-2 sm:space-x-3 lg:space-x-4">
-                <Link to="/admin/tutors" className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 lg:px-5 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors text-xs sm:text-sm whitespace-nowrap">
-                  <FaChalkboardTeacher />
-                  <span>Tutors</span>
-                </Link>
-                <Link to="/admin/students" className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 lg:px-5 py-2 rounded-lg bg-gradient-to-r from-primary-orange to-primary-orange/80 text-white font-semibold text-xs sm:text-sm whitespace-nowrap">
-                  <FaUserGraduate />
-                  <span>Students</span>
-                </Link>
-                <Link to="/admin/sessions" className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 lg:px-5 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors text-xs sm:text-sm whitespace-nowrap">
-                  <FaCalendarAlt />
-                  <span>Sessions</span>
-                </Link>
-              </div>
-            </div>
-            <div className="flex items-center space-x-2 sm:space-x-3">
-              <Link
-                to="/"
-                className="hidden sm:flex items-center gap-1.5 bg-primary-purple/10 text-primary-purple px-3 py-2 rounded-lg hover:bg-primary-purple/20 transition-colors text-xs font-semibold whitespace-nowrap border border-primary-purple/20"
-                title="View Public Website"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                <span className="hidden md:inline">Website</span>
-              </Link>
-              <span className="text-gray-700 text-xs truncate max-w-[100px] sm:max-w-none hidden sm:inline">{user?.email}</span>
-              <button
-                onClick={handleSignOut}
-                className="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 text-xs sm:text-sm transition-colors"
-              >
-                Sign Out
-              </button>
-            </div>
-          </div>
+    <AdminLayout>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-8">
+        <div>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-primary-navy mb-1">
+            Student Management
+          </h1>
+          <p className="text-gray-600 text-sm sm:text-base">
+            Manage student profiles and information
+          </p>
         </div>
-      </nav>
+        <button
+          onClick={handleAddStudent}
+          className="bg-gradient-to-r from-primary-orange to-primary-orange/80 text-white px-5 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 whitespace-nowrap"
+        >
+          <FaPlus className="text-sm" />
+          <span>Add New Student</span>
+        </button>
+      </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-8">
-          <div>
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-primary-navy mb-1">
-              Student Management
-            </h1>
-            <p className="text-gray-600 text-sm sm:text-base">
-              Manage student profiles and information
-            </p>
-          </div>
-          <button
-            onClick={handleAddStudent}
-            className="bg-gradient-to-r from-primary-orange to-primary-orange/80 text-white px-5 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 whitespace-nowrap"
-          >
-            <FaPlus className="text-sm" />
-            <span>Add New Student</span>
-          </button>
+      {/* Alert */}
+      {alert && (
+        <div className="mb-6">
+          <Alert
+            type={alert.type}
+            message={alert.message}
+            onClose={() => setAlert(null)}
+            autoClose={true}
+          />
         </div>
+      )}
 
-        {/* Alert */}
-        {alert && (
-          <div className="mb-6">
-            <Alert
-              type={alert.type}
-              message={alert.message}
-              onClose={() => setAlert(null)}
-              autoClose={true}
-            />
-          </div>
-        )}
-
-        {/* Student Table */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+      {/* Student Table */}
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div className="overflow-x-auto">
           <StudentTable
             students={students}
             loading={loading}
@@ -194,7 +134,7 @@ const StudentManagement = () => {
           setShowModal(false);
           setSelectedStudent(null);
         }}
-        title={selectedStudent ? 'Edit Student' : 'Add New Student'}
+        title={selectedStudent ? "Edit Student" : "Add New Student"}
         size="lg"
       >
         <StudentForm
@@ -217,7 +157,9 @@ const StudentManagement = () => {
         <div className="space-y-5">
           <div className="bg-red-50 border border-red-200 p-4 rounded-lg">
             <p className="text-gray-700 leading-relaxed">
-              Are you sure you want to delete {deleteConfirm?.first_name} {deleteConfirm?.last_name}? This will also delete all associated session records. This action cannot be undone.
+              Are you sure you want to delete {deleteConfirm?.first_name}{" "}
+              {deleteConfirm?.last_name}? This will also delete all associated
+              session records. This action cannot be undone.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
@@ -236,9 +178,8 @@ const StudentManagement = () => {
           </div>
         </div>
       </Modal>
-    </div>
+    </AdminLayout>
   );
 };
 
 export default StudentManagement;
-

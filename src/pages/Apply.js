@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import emailjs from "@emailjs/browser";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import Alert from "../components/Alert";
 
 const Apply = () => {
   const [formData, setFormData] = useState({
@@ -16,50 +15,18 @@ const Apply = () => {
     uniCourses: "",
     mode: "Online",
     areas: "",
-  });
-  const [files, setFiles] = useState({
-    matricFile: null,
-    transcriptFile: null,
+    matricLink: "",
+    transcriptLink: "",
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
-
-  const MAX_FILE_SIZE = 4 * 1024 * 1024; // 4MB
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    const fieldName = e.target.name;
-
-    if (file) {
-      if (file.size > MAX_FILE_SIZE) {
-        setError(
-          `${
-            fieldName === "matricFile"
-              ? "Matric certificate"
-              : "University transcript"
-          } file is larger than 4 MB. Please upload a smaller file.`
-        );
-        e.target.value = "";
-        return;
-      }
-      if (file.type !== "application/pdf") {
-        setError("Please upload PDF files only.");
-        e.target.value = "";
-        return;
-      }
-      setFiles({
-        ...files,
-        [fieldName]: file,
-      });
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -69,8 +36,6 @@ const Apply = () => {
     setSuccess(false);
 
     try {
-      // Note: EmailJS doesn't support file attachments directly
-      // Files would need to be handled by a backend endpoint
       await emailjs.send(
         process.env.REACT_APP_EMAILJS_SERVICE_ID,
         process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
@@ -86,8 +51,8 @@ const Apply = () => {
           uni_courses: formData.uniCourses || "N/A",
           mode: formData.mode,
           areas: formData.areas || "N/A",
-          has_matric: files.matricFile ? "Yes (file uploaded)" : "No",
-          has_transcript: files.transcriptFile ? "Yes (file uploaded)" : "No",
+          matric_link: formData.matricLink || "Not provided",
+          transcript_link: formData.transcriptLink || "Not provided",
         },
         process.env.REACT_APP_EMAILJS_PUBLIC_KEY
       );
@@ -104,14 +69,9 @@ const Apply = () => {
         uniCourses: "",
         mode: "Online",
         areas: "",
+        matricLink: "",
+        transcriptLink: "",
       });
-      setFiles({
-        matricFile: null,
-        transcriptFile: null,
-      });
-      // Reset file inputs
-      document.getElementById("matricFile").value = "";
-      document.getElementById("transcriptFile").value = "";
     } catch (err) {
       setError(
         "Failed to submit application. Please try again or contact us directly."
@@ -131,13 +91,12 @@ const Apply = () => {
         <div className="w-full max-w-3xl">
           {success ? (
             <div className="bg-gradient-to-br from-[#d8c7ff] to-primary-purple rounded-2xl p-8 sm:p-12 shadow-2xl text-center animate-fade-in">
-              <div className="text-6xl mb-6">🎉</div>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-primary-navy mb-4 uppercase">
-                Application Submitted!
+                Application Submitted
               </h2>
               <p className="text-primary-navy/90 text-lg leading-relaxed">
                 Thank you for applying to become a LearnGevity tutor! You will
-                receive feedback within <strong>10–15 business days</strong>.
+                receive feedback very soon.
               </p>
             </div>
           ) : (
@@ -282,46 +241,58 @@ const Apply = () => {
                   </select>
                 </div>
 
-                {/* Matric Certificate */}
+                {/* Matric Certificate Google Drive Link */}
                 <div>
                   <label
-                    htmlFor="matricFile"
+                    htmlFor="matricLink"
                     className="block text-lg font-bold text-primary-navy mb-2"
                   >
-                    Matric Certificate (optional)
+                    Matric Certificate (Google Drive Link)
                   </label>
                   <input
-                    type="file"
-                    id="matricFile"
-                    name="matricFile"
-                    accept="application/pdf"
-                    onChange={handleFileChange}
-                    className="w-full px-3 py-2.5 rounded-xl bg-white border-2 border-dashed border-primary-purple text-primary-navy file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-primary-purple file:text-white file:font-bold hover:file:bg-primary-purple/90 file:cursor-pointer"
+                    type="url"
+                    id="matricLink"
+                    name="matricLink"
+                    value={formData.matricLink}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3.5 rounded-xl border-none outline-none text-base bg-white/95 text-primary-navy shadow-md focus:shadow-[0_0_0_3px_rgba(106,76,255,0.5)] transition-shadow"
+                    placeholder="https://drive.google.com/file/d/..."
                   />
-                  <small className="text-primary-navy/70 text-sm">
-                    Max file size: <strong>4 MB</strong> (PDF only)
-                  </small>
                 </div>
 
-                {/* University Transcript */}
+                {/* University Transcript Google Drive Link */}
                 <div>
                   <label
-                    htmlFor="transcriptFile"
+                    htmlFor="transcriptLink"
                     className="block text-lg font-bold text-primary-navy mb-2"
                   >
-                    University Transcript (optional)
+                    University Transcript (Google Drive Link)
                   </label>
                   <input
-                    type="file"
-                    id="transcriptFile"
-                    name="transcriptFile"
-                    accept="application/pdf"
-                    onChange={handleFileChange}
-                    className="w-full px-3 py-2.5 rounded-xl bg-white border-2 border-dashed border-primary-purple text-primary-navy file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-primary-purple file:text-white file:font-bold hover:file:bg-primary-purple/90 file:cursor-pointer"
+                    type="url"
+                    id="transcriptLink"
+                    name="transcriptLink"
+                    value={formData.transcriptLink}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3.5 rounded-xl border-none outline-none text-base bg-white/95 text-primary-navy shadow-md focus:shadow-[0_0_0_3px_rgba(106,76,255,0.5)] transition-shadow"
+                    placeholder="https://drive.google.com/file/d/..."
                   />
-                  <small className="text-primary-navy/70 text-sm">
-                    Max file size: <strong>4 MB</strong> (PDF only)
-                  </small>
+                  <div className="mt-2 p-3 bg-primary-orange/10 border-l-4 border-primary-orange rounded">
+                    <p className="text-sm text-primary-navy leading-relaxed">
+                      <strong className="text-primary-orange">
+                        How to share:
+                      </strong>
+                      <br />
+                      1. Upload your document to Google Drive
+                      <br />
+                      2. Right-click the file → <strong>Get link</strong>
+                      <br />
+                      3. Change to <strong>"Anyone with the link"</strong> (make
+                      it public)
+                      <br />
+                      4. Click <strong>Copy link</strong> and paste it above
+                    </p>
+                  </div>
                 </div>
 
                 {/* High School Subjects */}
