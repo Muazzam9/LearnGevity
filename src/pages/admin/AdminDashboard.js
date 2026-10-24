@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
 import AdminLayout from "../../components/admin/AdminLayout";
+import { isSessionInCurrentWeek } from "../../utils/sessionDateGroups";
 import {
   FaChalkboardTeacher,
   FaUserGraduate,
@@ -48,18 +49,10 @@ const AdminDashboard = () => {
       if (sessionsError) throw sessionsError;
 
       // Calculate this week's sessions
-      const now = new Date();
-      const weekStart = new Date(now);
-      weekStart.setDate(now.getDate() - now.getDay()); // Start of week (Sunday)
-      weekStart.setHours(0, 0, 0, 0);
-
-      const weekEnd = new Date(weekStart);
-      weekEnd.setDate(weekStart.getDate() + 7);
-
-      const thisWeekSessions = sessionsData.filter((session) => {
-        const sessionDate = new Date(session.date);
-        return sessionDate >= weekStart && sessionDate < weekEnd;
-      });
+      // Weeks run Monday to Sunday
+      const thisWeekSessions = sessionsData.filter((session) =>
+        isSessionInCurrentWeek(session)
+      );
 
       // Count completed sessions (all time)
       const completedCount = sessionsData.filter(

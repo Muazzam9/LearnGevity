@@ -9,6 +9,7 @@ import AvailabilityManager from "../../components/tutor/AvailabilityManager";
 import Modal from "../../components/Modal";
 import ChangePasswordModal from "../../components/ChangePasswordModal";
 import { formatDateTime, formatDuration } from "../../utils/dateHelpers";
+import { isSessionInCurrentWeek } from "../../utils/sessionDateGroups";
 import {
   FaCalendarCheck,
   FaCheckCircle,
@@ -81,18 +82,10 @@ const TutorDashboard = () => {
         setStudents(studentsData || []);
       }
 
-      const now = new Date();
-      const weekStart = new Date(now);
-      weekStart.setDate(now.getDate() - now.getDay()); // Start of week (Sunday)
-      weekStart.setHours(0, 0, 0, 0);
-
-      const weekEnd = new Date(weekStart);
-      weekEnd.setDate(weekStart.getDate() + 7);
-
-      const thisWeekSessions = sessionsData.filter((session) => {
-        const sessionDate = new Date(session.date);
-        return sessionDate >= weekStart && sessionDate < weekEnd;
-      });
+      // Weeks run Monday to Sunday
+      const thisWeekSessions = sessionsData.filter((session) =>
+        isSessionInCurrentWeek(session)
+      );
 
       const scheduled = thisWeekSessions.filter(
         (s) => s.status === "scheduled"

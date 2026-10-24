@@ -23,6 +23,7 @@ const SessionForm = ({ session, onSuccess, onCancel }) => {
     delivery_mode: "online",
     location: "",
     meeting_link: "",
+    status: "scheduled",
   });
 
   const [tutors, setTutors] = useState([]);
@@ -50,6 +51,7 @@ const SessionForm = ({ session, onSuccess, onCancel }) => {
         delivery_mode: session.delivery_mode || "online",
         location: session.location || "",
         meeting_link: session.meeting_link || "",
+        status: session.status || "scheduled",
       });
     }
   }, [session]);
@@ -153,7 +155,7 @@ const SessionForm = ({ session, onSuccess, onCancel }) => {
           formData.delivery_mode === "in-person" ? formData.location : null,
         meeting_link:
           formData.delivery_mode === "online" ? formData.meeting_link : null,
-        status: "scheduled",
+        status: formData.status,
       };
 
       if (session) {
@@ -188,6 +190,10 @@ const SessionForm = ({ session, onSuccess, onCancel }) => {
       </div>
     );
   }
+
+  // Hint only: past-dated sessions are allowed (e.g. recording something that
+  // already happened). Compared as "yyyy-MM-dd" strings to avoid timezone drift.
+  const isPastSession = !!formData.date && formData.date < getTodayDate();
 
   const endTime =
     formData.start_time && formData.duration
@@ -311,7 +317,6 @@ const SessionForm = ({ session, onSuccess, onCancel }) => {
             required
             value={formData.date}
             onChange={handleChange}
-            min={getTodayDate()}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-purple focus:border-transparent"
           />
         </div>
@@ -409,6 +414,35 @@ const SessionForm = ({ session, onSuccess, onCancel }) => {
             <option value="in-person">In-Person</option>
           </select>
         </div>
+      </div>
+
+      <div>
+        <label
+          htmlFor="status"
+          className="block text-sm font-medium text-gray-700 mb-2"
+        >
+          Status *
+        </label>
+        <select
+          id="status"
+          name="status"
+          required
+          value={formData.status}
+          onChange={handleChange}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-purple focus:border-transparent"
+        >
+          <option value="scheduled">Scheduled</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+          <option value="postponed">Postponed</option>
+          <option value="no-show">No-Show</option>
+        </select>
+        {isPastSession && formData.status === "scheduled" && (
+          <p className="text-xs text-yellow-700 mt-1">
+            This session is in the past. If it already took place, set the
+            status to Completed.
+          </p>
+        )}
       </div>
 
       {formData.delivery_mode === "online" && (

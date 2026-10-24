@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const TutorTable = ({ tutors, onEdit, onDelete, loading }) => {
+const TutorTable = ({ tutors, onEdit, onDelete, onView, loading }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterSubject, setFilterSubject] = useState('');
 
@@ -95,7 +95,20 @@ const TutorTable = ({ tutors, onEdit, onDelete, loading }) => {
                 </tr>
               ) : (
                 filteredTutors.map((tutor) => (
-                  <tr key={tutor.id} className="hover:bg-gray-50">
+                  <tr
+                    key={tutor.id}
+                    className={`hover:bg-gray-50 ${onView ? 'cursor-pointer' : ''}`}
+                    onClick={onView ? () => onView(tutor) : undefined}
+                    onKeyDown={
+                      onView
+                        ? (e) => {
+                            if (e.key === 'Enter' && e.target === e.currentTarget) onView(tutor);
+                          }
+                        : undefined
+                    }
+                    tabIndex={onView ? 0 : undefined}
+                    aria-label={onView ? `View details for ${tutor.name}` : undefined}
+                  >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10">
@@ -155,7 +168,18 @@ const TutorTable = ({ tutors, onEdit, onDelete, loading }) => {
                         {tutor.is_active ? 'Active' : 'Inactive'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <td
+                      className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {onView && (
+                        <button
+                          onClick={() => onView(tutor)}
+                          className="text-primary-navy hover:text-primary-purple mr-4"
+                        >
+                          View
+                        </button>
+                      )}
                       <button
                         onClick={() => onEdit(tutor)}
                         className="text-primary-purple hover:text-primary-navy mr-4"

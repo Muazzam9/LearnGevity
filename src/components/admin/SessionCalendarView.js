@@ -157,6 +157,7 @@ const SessionCalendarView = ({ sessions, students, tutors, onEventClick }) => {
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView="timeGridWeek"
+        firstDay={1} // weeks run Monday to Sunday
         headerToolbar={{
           left: "prev,next today",
           center: "title",
