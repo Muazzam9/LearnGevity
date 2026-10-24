@@ -7,6 +7,7 @@ import SessionList from "../../components/tutor/SessionList";
 import SessionCalendarView from "../../components/tutor/SessionCalendarView";
 import AvailabilityManager from "../../components/tutor/AvailabilityManager";
 import Modal from "../../components/Modal";
+import ChangePasswordModal from "../../components/ChangePasswordModal";
 import { formatDateTime, formatDuration } from "../../utils/dateHelpers";
 import {
   FaCalendarCheck,
@@ -15,6 +16,7 @@ import {
   FaCalendarAlt,
   FaList,
   FaCalendar,
+  FaLock,
 } from "react-icons/fa";
 
 const TutorDashboard = () => {
@@ -25,6 +27,7 @@ const TutorDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [viewingSession, setViewingSession] = useState(null);
   const [showAvailability, setShowAvailability] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
   const [viewMode, setViewMode] = useState("list"); // 'list' or 'calendar'
   const [stats, setStats] = useState({
     scheduled: 0,
@@ -221,13 +224,22 @@ const TutorDashboard = () => {
 
       {/* Quick Actions */}
       <div className="mb-8">
-        <button
-          onClick={() => setShowAvailability(!showAvailability)}
-          className="bg-gradient-to-r from-primary-purple to-primary-navy text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 flex items-center gap-2"
-        >
-          <FaCalendarAlt className="text-lg" />
-          {showAvailability ? "Hide" : "Manage"} Availability
-        </button>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button
+            onClick={() => setShowAvailability(!showAvailability)}
+            className="bg-gradient-to-r from-primary-purple to-primary-navy text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+          >
+            <FaCalendarAlt className="text-lg" />
+            {showAvailability ? "Hide" : "Manage"} Availability
+          </button>
+          <button
+            onClick={() => setShowChangePassword(true)}
+            className="bg-gradient-to-r from-primary-orange to-primary-orange/80 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+          >
+            <FaLock className="text-lg" />
+            Change Password
+          </button>
+        </div>
       </div>
 
       {/* Availability Manager */}
@@ -502,6 +514,12 @@ const TutorDashboard = () => {
           </div>
         )}
       </Modal>
+
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        isOpen={showChangePassword}
+        onClose={() => setShowChangePassword(false)}
+      />
     </TutorLayout>
   );
 };

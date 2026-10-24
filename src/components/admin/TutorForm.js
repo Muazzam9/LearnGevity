@@ -8,11 +8,13 @@ const TutorForm = ({ tutor, onSuccess, onCancel }) => {
     phone: '',
     photo_url: '',
     subjects: [],
+    areas: [],
     bio: '',
     hourly_rate: '',
     password: '',
   });
   const [subjectInput, setSubjectInput] = useState('');
+  const [areaInput, setAreaInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -24,6 +26,7 @@ const TutorForm = ({ tutor, onSuccess, onCancel }) => {
         phone: tutor.phone || '',
         photo_url: tutor.photo_url || '',
         subjects: tutor.subjects || [],
+        areas: tutor.areas || [],
         bio: tutor.bio || '',
         hourly_rate: tutor.hourly_rate || '',
         password: '', // Never pre-fill password
@@ -54,6 +57,24 @@ const TutorForm = ({ tutor, onSuccess, onCancel }) => {
     }));
   };
 
+  const handleAddArea = () => {
+    const trimmed = areaInput.trim();
+    if (trimmed && !formData.areas.includes(trimmed)) {
+      setFormData(prev => ({
+        ...prev,
+        areas: [...prev.areas, trimmed]
+      }));
+      setAreaInput('');
+    }
+  };
+
+  const handleRemoveArea = (area) => {
+    setFormData(prev => ({
+      ...prev,
+      areas: prev.areas.filter(a => a !== area)
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -69,6 +90,7 @@ const TutorForm = ({ tutor, onSuccess, onCancel }) => {
             phone: formData.phone,
             photo_url: formData.photo_url,
             subjects: formData.subjects,
+            areas: formData.areas,
             bio: formData.bio,
             hourly_rate: parseFloat(formData.hourly_rate),
           })
@@ -99,6 +121,7 @@ const TutorForm = ({ tutor, onSuccess, onCancel }) => {
           p_phone: formData.phone || null,
           p_photo_url: formData.photo_url || null,
           p_subjects: formData.subjects,
+          p_areas: formData.areas,
           p_bio: formData.bio || null,
           p_hourly_rate: parseFloat(formData.hourly_rate),
         });
@@ -257,6 +280,52 @@ const TutorForm = ({ tutor, onSuccess, onCancel }) => {
         {formData.subjects.length === 0 && (
           <p className="text-xs text-red-500 mt-1">Please add at least one subject</p>
         )}
+      </div>
+
+      <div>
+        <label htmlFor="areas" className="block text-sm font-medium text-gray-700 mb-2">
+          Service Areas
+        </label>
+        <div className="flex gap-2 mb-2">
+          <input
+            type="text"
+            value={areaInput}
+            onChange={(e) => setAreaInput(e.target.value)}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleAddArea();
+              }
+            }}
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-purple focus:border-transparent"
+            placeholder="e.g., Johannesburg, Pretoria"
+          />
+          <button
+            type="button"
+            onClick={handleAddArea}
+            className="px-4 py-2 bg-primary-orange text-white rounded-lg hover:bg-opacity-90"
+          >
+            Add
+          </button>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {formData.areas.map((area, idx) => (
+            <span
+              key={idx}
+              className="bg-primary-orange bg-opacity-10 text-primary-orange px-3 py-1 rounded-full text-sm flex items-center gap-2"
+            >
+              {area}
+              <button
+                type="button"
+                onClick={() => handleRemoveArea(area)}
+                className="hover:text-red-600"
+              >
+                ×
+              </button>
+            </span>
+          ))}
+        </div>
+        <p className="text-xs text-gray-500 mt-1">Areas where the tutor can provide tutoring services</p>
       </div>
 
       <div>
