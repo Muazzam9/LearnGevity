@@ -1,67 +1,23 @@
 import React, { useMemo, useState } from 'react';
 import { FaMapMarkerAlt, FaVideo, FaClock, FaUser } from 'react-icons/fa';
 import { formatDateTime, formatDuration } from '../../utils/dateHelpers';
+import { groupSessionsByDate } from '../../utils/sessionDateGroups';
 
 const SessionList = ({ sessions, students, onSelectEvent }) => {
   const [filter, setFilter] = useState('all'); // today, week, all
 
-  // Group sessions by date categories
-  const groupedSessions = useMemo(() => {
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const weekEnd = new Date(today);
-    weekEnd.setDate(weekEnd.getDate() + 7);
-
-    const groups = {
-      today: [],
-      tomorrow: [],
-      thisWeek: [],
-      later: [],
-    };
-
-    sessions
-      .sort((a, b) => {
-        const dateA = new Date(`${a.date}T${a.start_time}`);
-        const dateB = new Date(`${b.date}T${b.start_time}`);
-        return dateA - dateB;
-      })
-      .forEach((session) => {
-        const sessionDate = new Date(session.date);
-        sessionDate.setHours(0, 0, 0, 0);
-
-        if (sessionDate.getTime() === today.getTime()) {
-          groups.today.push(session);
-        } else if (sessionDate.getTime() === tomorrow.getTime()) {
-          groups.tomorrow.push(session);
-        } else if (sessionDate < weekEnd) {
-          groups.thisWeek.push(session);
-        } else {
-          groups.later.push(session);
-        }
-      });
-
-    return groups;
-  }, [sessions]);
+  // Group sessions by date categories (weeks run Monday to Sunday)
+  const groupedSessions = useMemo(
+    () => groupSessionsByDate(sessions, new Date()),
+    [sessions]
+  );
 
   // Filter sessions based on selected filter
   const filteredSessions = useMemo(() => {
-    if (filter === 'today') {
-      return groupedSessions.today;
-    } else if (filter === 'week') {
-      return [
-        ...groupedSessions.today,
-        ...groupedSessions.tomorrow,
-        ...groupedSessions.thisWeek,
-      ];
-    }
-    return sessions.sort((a, b) => {
-      const dateA = new Date(`${a.date}T${a.start_time}`);
-      const dateB = new Date(`${b.date}T${b.start_time}`);
-      return dateA - dateB;
-    });
-  }, [filter, groupedSessions, sessions]);
+    if (filter === 'today') return groupedSessions.todayAll;
+    if (filter === 'week') return groupedSessions.weekAll;
+    return groupedSessions.all;
+  }, [filter, groupedSessions]);
 
   const getStudentName = (studentId) => {
     const student = students.find((s) => s.id === studentId);
@@ -240,8 +196,9 @@ const SessionList = ({ sessions, students, onSelectEvent }) => {
           <>
             {renderGroup('Today', groupedSessions.today)}
             {renderGroup('Tomorrow', groupedSessions.tomorrow)}
-            {renderGroup('This Week', groupedSessions.thisWeek)}
+            {renderGroup('Later This Week', groupedSessions.thisWeek)}
             {renderGroup('Later', groupedSessions.later)}
+            {renderGroup('Past', groupedSessions.past)}
           </>
         ) : (
           filteredSessions.map(renderSessionCard)

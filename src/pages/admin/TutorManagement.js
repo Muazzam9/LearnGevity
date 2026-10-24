@@ -3,6 +3,7 @@ import { supabase } from "../../lib/supabaseClient";
 import AdminLayout from "../../components/admin/AdminLayout";
 import TutorTable from "../../components/admin/TutorTable";
 import TutorForm from "../../components/admin/TutorForm";
+import TutorDetailsModal from "../../components/admin/TutorDetailsModal";
 import Modal from "../../components/Modal";
 import Alert from "../../components/Alert";
 import { FaPlus } from "react-icons/fa";
@@ -12,6 +13,7 @@ const TutorManagement = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [selectedTutor, setSelectedTutor] = useState(null);
+  const [viewingTutor, setViewingTutor] = useState(null);
   const [alert, setAlert] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
@@ -134,11 +136,23 @@ const TutorManagement = () => {
           <TutorTable
             tutors={tutors}
             loading={loading}
+            onView={setViewingTutor}
             onEdit={handleEditTutor}
             onDelete={handleDeleteTutor}
           />
         </div>
       </div>
+
+      {/* Tutor Details Modal (profile, blocked times, upcoming sessions) */}
+      <TutorDetailsModal
+        tutor={viewingTutor}
+        isOpen={!!viewingTutor}
+        onClose={() => setViewingTutor(null)}
+        onEdit={(tutor) => {
+          setViewingTutor(null);
+          handleEditTutor(tutor);
+        }}
+      />
 
       {/* Add/Edit Tutor Modal */}
       <Modal

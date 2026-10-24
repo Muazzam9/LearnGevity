@@ -1,80 +1,27 @@
 import React, { useMemo, useState } from 'react';
 import { FaMapMarkerAlt, FaVideo, FaClock, FaUser, FaEdit, FaTrash, FaEye } from 'react-icons/fa';
 import { formatDateTime, formatDuration } from '../../utils/dateHelpers';
+import { groupSessionsByDate } from '../../utils/sessionDateGroups';
 
 const SessionListView = ({ sessions, students, tutors, onView, onEdit, onDelete }) => {
-  const [filter, setFilter] = useState('all'); // today, week, all
+  const [filter, setFilter] = useState('all'); // today, week, month, all
   const [statusFilter, setStatusFilter] = useState('all'); // all, scheduled, completed, etc.
 
-  // Group sessions by date categories
+  // Group sessions by date categories (weeks run Monday to Sunday)
   const groupedSessions = useMemo(() => {
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const weekEnd = new Date(today);
-    weekEnd.setDate(weekEnd.getDate() + 7);
-
-    const groups = {
-      today: [],
-      tomorrow: [],
-      thisWeek: [],
-      later: [],
-    };
-
-    sessions
-      .filter((session) => {
-        if (statusFilter === 'all') return true;
-        return session.status === statusFilter;
-      })
-      .sort((a, b) => {
-        const dateA = new Date(`${a.date}T${a.start_time}`);
-        const dateB = new Date(`${b.date}T${b.start_time}`);
-        return dateA - dateB;
-      })
-      .forEach((session) => {
-        const sessionDate = new Date(session.date);
-        sessionDate.setHours(0, 0, 0, 0);
-
-        if (sessionDate.getTime() === today.getTime()) {
-          groups.today.push(session);
-        } else if (sessionDate.getTime() === tomorrow.getTime()) {
-          groups.tomorrow.push(session);
-        } else if (sessionDate < weekEnd) {
-          groups.thisWeek.push(session);
-        } else {
-          groups.later.push(session);
-        }
-      });
-
-    return groups;
+    const visible = sessions.filter(
+      (session) => statusFilter === 'all' || session.status === statusFilter
+    );
+    return groupSessionsByDate(visible, new Date());
   }, [sessions, statusFilter]);
 
-  // Filter sessions based on selected filter
+  // Sessions for the selected date filter
   const filteredSessions = useMemo(() => {
-    let result = [];
-    
-    if (filter === 'today') {
-      result = groupedSessions.today;
-    } else if (filter === 'week') {
-      result = [
-        ...groupedSessions.today,
-        ...groupedSessions.tomorrow,
-        ...groupedSessions.thisWeek,
-      ];
-    } else {
-      result = sessions.filter((session) => {
-        if (statusFilter === 'all') return true;
-        return session.status === statusFilter;
-      }).sort((a, b) => {
-        const dateA = new Date(`${a.date}T${a.start_time}`);
-        const dateB = new Date(`${b.date}T${b.start_time}`);
-        return dateA - dateB;
-      });
-    }
-
-    return result;
-  }, [filter, groupedSessions, sessions, statusFilter]);
+    if (filter === 'today') return groupedSessions.todayAll;
+    if (filter === 'week') return groupedSessions.weekAll;
+    if (filter === 'month') return groupedSessions.monthAll;
+    return groupedSessions.all;
+  }, [filter, groupedSessions]);
 
   const getStudentName = (studentId) => {
     const student = students.find((s) => s.id === studentId);
@@ -268,6 +215,16 @@ const SessionListView = ({ sessions, students, tutors, onView, onEdit, onDelete 
             This Week
           </button>
           <button
+            onClick={() => setFilter('month')}
+            className={`px-4 py-2 rounded-lg font-semibold text-sm whitespace-nowrap transition-all ${
+              filter === 'month'
+                ? 'bg-gradient-to-r from-primary-purple to-primary-navy text-white shadow-md'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            This Month
+          </button>
+          <button
             onClick={() => setFilter('all')}
             className={`px-4 py-2 rounded-lg font-semibold text-sm whitespace-nowrap transition-all ${
               filter === 'all'
@@ -345,6 +302,8 @@ const SessionListView = ({ sessions, students, tutors, onView, onEdit, onDelete 
                 ? "No sessions scheduled for today"
                 : filter === 'week'
                 ? "No sessions scheduled this week"
+                : filter === 'month'
+                ? "No sessions scheduled this month"
                 : statusFilter !== 'all'
                 ? `No ${statusFilter} sessions found`
                 : "No sessions scheduled yet"}
@@ -354,8 +313,9 @@ const SessionListView = ({ sessions, students, tutors, onView, onEdit, onDelete 
           <>
             {renderGroup('Today', groupedSessions.today)}
             {renderGroup('Tomorrow', groupedSessions.tomorrow)}
-            {renderGroup('This Week', groupedSessions.thisWeek)}
+            {renderGroup('Later This Week', groupedSessions.thisWeek)}
             {renderGroup('Later', groupedSessions.later)}
+            {renderGroup('Past', groupedSessions.past)}
           </>
         ) : (
           filteredSessions.map(renderSessionCard)
